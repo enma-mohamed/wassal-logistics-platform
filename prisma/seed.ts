@@ -1,4 +1,4 @@
-import { PrismaClient } from "../src/generated/prisma/client";
+import { PrismaClient, type Branch, type Province } from "../src/generated/prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import crypto from "crypto";
 import path from "path";
@@ -8,7 +8,8 @@ const adapter = new PrismaBetterSqlite3({ url: `file:${dbPath}` });
 const prisma = new PrismaClient({ adapter });
 
 
-const SALT = "wassal_secret_salt_key_123";
+const SALT = process.env.HASH_SALT || "wassal_secret_salt_key_123";
+
 function hashPassword(password: string): string {
   return crypto.createHmac("sha256", SALT).update(password).digest("hex");
 }
@@ -62,9 +63,9 @@ async function main() {
 
   // إنشاء الفروع لجميع المحافظات
   const provinces = await prisma.province.findMany();
-  let mainBranch: any;
-  let capitalProvince: any;
-  let adenProvince: any;
+  let mainBranch: Branch | null = null;
+  let capitalProvince: Province | null = null;
+  let adenProvince: Province | null = null;
 
   for (const province of provinces) {
     let branchName = `فرع ${province.name}`;
@@ -110,10 +111,11 @@ async function main() {
     mainBranch = await prisma.branch.findUnique({ where: { name: "الفرع الرئيسي - صنعاء" } });
     if (!mainBranch) throw new Error("الفرع الرئيسي غير موجود");
   }
+  if (!capitalProvince) throw new Error("لم يتم تحديد محافظة العاصمة");
   console.log("  ✅ تم إنشاء الفروع لجميع المحافظات الـ 22");
 
   // إنشاء المستخدم الإداري
-  const admin = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: "admin@wassal.ye" },
     update: {},
     create: {
@@ -128,7 +130,7 @@ async function main() {
   console.log("  ✅ مدير النظام (admin@wassal.ye / admin123)");
 
   // إنشاء مستخدمين تجريبيين
-  const branchManager = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: "manager@wassal.ye" },
     update: {},
     create: {
