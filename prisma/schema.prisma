@@ -1,0 +1,343 @@
+datasource db {
+  provider = "sqlite"
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+// المستخدمين
+model User {
+  id               String           @id @default(uuid())
+  name             String
+  email            String           @unique
+  phone            String           @unique
+  passwordHash     String
+  role             String           // SYSTEM_ADMIN, COMPANY_ADMIN, BRANCH_MANAGER, RECEPTIONIST, DELIVERY_STAFF, DRIVER, AGENT, ACCOUNTANT
+  isActive         Boolean          @default(true)
+  avatar           String?
+  branchId         String?
+  branch           Branch?          @relation("BranchEmployees", fields: [branchId], references: [id])
+  managedBranch    Branch?          @relation("BranchManager")
+  
+  // العلاقات التشغيلية
+  agentProfile     Agent?
+  driverProfile    Driver?
+  createdShipments Shipment[]       @relation("CreatedShipments")
+  eventsFrom       ShipmentEvent[]  @relation("EventsFrom")
+  eventsTo         ShipmentEvent[]  @relation("EventsTo")
+  paymentsCollected Payment[]       @relation("CollectedBy")
+  complaints       Complaint[]
+  auditLogs        AuditLog[]
+  
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+// الفروع
+model Branch {
+  id           String          @id @default(uuid())
+  name         String          @unique
+  provinceId   String
+  province     Province        @relation(fields: [provinceId], references: [id])
+  managerId    String?         @unique
+  manager      User?           @relation("BranchManager", fields: [managerId], references: [id])
+  phone        String
+  address      String
+  isActive     Boolean         @default(true)
+  
+  // العلاقات
+  employees    User[]          @relation("BranchEmployees")
+  originShipments Shipment[]   @relation("OriginBranchShipments")
+  destShipments   Shipment[]   @relation("DestBranchShipments")
+  events       ShipmentEvent[]
+  
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+// المحافظات
+model Province {
+  id           String        @id @default(uuid())
+  name         String        @unique
+  isActive     Boolean       @default(true)
+  branches     Branch[]
+  cities       City[]
+  customers    Customer[]    @relation("CustomerProvince")
+  
+  // قواعد التسعير
+  pricingFrom  PricingRule[] @relation("PricingFrom")
+  pricingTo    PricingRule[] @relation("PricingTo")
+  
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+// المدن والمديريات
+model City {
+  id           String     @id @default(uuid())
+  name         String
+  provinceId   String
+  province     Province   @relation(fields: [provinceId], references: [id])
+  isActive     Boolean    @default(true)
+  customers    Customer[] @relation("CustomerCity")
+  
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([name, provinceId])
+}
+
+// العملاء (المرسلين والمستقبلين)
+model Customer {
+  id               String     @id @default(uuid())
+  name             String
+  phone            String     @unique
+  altPhone         String?
+  provinceId       String
+  province         Province   @relation("CustomerProvince", fields: [provinceId], references: [id])
+  cityId           String
+  city             City       @relation("CustomerCity", fields: [cityId], references: [id])
+  address          String
+  landmark         String?
+  idNumber         String?
+  email            String?
+  notes            String?
+  
+  // شحنات العميل
+  sentShipments     Shipment[] @relation("SenderShipments")
+  receivedShipments Shipment[] @relation("ReceiverShipments")
+  
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+}
+
+// الشحنات
+model Shipment {
+  id               String                @id @default(uuid())
+  trackingNumber   String                @unique
+  status           String                // PENDING_RECEIVE, RECEIVED_IN_BRANCH, IN_SORTING, IN_TRANSIT, ARRIVED_BRANCH, OUT_FOR_DELIVERY, DELIVERED, RETURNED, CANCELLED
+  type             String                @default("PARCEL") // PARCEL, DOCUMENTS, SECURE_PARCEL
+  serviceType      String                @default("REGULAR") // REGULAR, URGENT, INSURED, RETURN_SERVICE
+  
+  // المرسل والمستلم
+  senderId         String
+  sender           Customer              @relation("SenderShipments", fields: [senderId], references: [id])
+  receiverId       String
+  receiver         Customer              @relation("ReceiverShipments", fields: [receiverId], references: [id])
+  
+  // فروع الشحن والوجهة
+  originBranchId   String
+  originBranch     Branch                @relation("OriginBranchShipments", fields: [originBranchId], references: [id])
+  destBranchId     String
+  destBranch       Branch                @relation("DestBranchShipments", fields: [destBranchId], references: [id])
+  
+  // المسؤولين التشغيليين
+  agentId          String?
+  agent            Agent?                @relation(fields: [agentId], references: [id])
+  driverId         String?
+  driver           Driver?               @relation(fields: [driverId], references: [id])
+  
+  // المواصفات الفنية والمالية
+  weight           Float                 @default(1.0)
+  width            Float?
+  height           Float?
+  length           Float?
+  declaredValue    Float                 @default(0.0) // القيمة المصرح بها للأمانات الشحنة
+  shippingFee      Float                 @default(0.0) // رسوم الشحن
+  collectionAmount Float                 @default(0.0) // مبالغ تحصيل عند التسليم COD
+  paymentMethod    String                @default("CASH_ON_DELIVERY") // PREPAID, CASH_ON_DELIVERY, ACCOUNT_DEBIT
+  paymentStatus    String                @default("UNPAID") // UNPAID, PARTIALLY_PAID, PAID, SETTLED
+  
+  notes            String?
+  metadataJson     String?               // لتخزين أي بيانات مرنة إضافية
+  otp              String?               // رمز التحقق عند التسليم
+  
+  // العلاقات الفرعية
+  items            ShipmentItem[]
+  events           ShipmentEvent[]
+  payments         Payment[]
+  deliveryProofs   DeliveryProof[]
+  complaints       Complaint[]
+  
+  createdById      String
+  createdBy        User                  @relation("CreatedShipments", fields: [createdById], references: [id])
+  
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+
+  @@index([status])
+  @@index([trackingNumber])
+}
+
+// تفاصيل الطرد والشحنة (القطع داخل الطرد)
+model ShipmentItem {
+  id           String   @id @default(uuid())
+  shipmentId   String
+  shipment     Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  description  String
+  count        Int      @default(1)
+  weight       Float    @default(0.0)
+  volume       Float?
+  price        Float    @default(0.0)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// سجل الأحداث والخط الزمني للشحنة
+model ShipmentEvent {
+  id           String   @id @default(uuid())
+  shipmentId   String
+  shipment     Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  eventType    String   // CREATED, RECEIVED, DEPARTED, ARRIVED, OUT_FOR_DELIVERY, DELIVERED, EXCEPTION, RETURNED
+  
+  // تفاصيل التسليم والاستلام والفرع
+  fromUserId   String?
+  fromUser     User?    @relation("EventsFrom", fields: [fromUserId], references: [id])
+  toUserId     String?
+  toUser       User?    @relation("EventsTo", fields: [toUserId], references: [id])
+  branchId     String?
+  branch       Branch?  @relation(fields: [branchId], references: [id])
+  
+  location     String?  // النص الجغرافي أو المحطة
+  notes        String?
+  photoUrl     String?  // توثيق بصري للحدث إن لزم
+  
+  createdAt    DateTime @default(now())
+}
+
+// الوكلاء
+model Agent {
+  id             String     @id @default(uuid())
+  userId         String     @unique
+  user           User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commissionType String     @default("FIXED") // FIXED, PERCENTAGE
+  commissionRate Float      @default(0.0)
+  area           String?
+  status         String     @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  rating         Float      @default(5.0)
+  shipments      Shipment[]
+  
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+}
+
+// السائقين
+model Driver {
+  id           String     @id @default(uuid())
+  userId       String     @unique
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status       String     @default("AVAILABLE") // AVAILABLE, BUSY, OFFLINE
+  vehiclePlate String?
+  licenseNumber String?
+  rating       Float      @default(5.0)
+  shipments    Shipment[]
+  
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+// قواعد التسعير الذكي
+model PricingRule {
+  id                String   @id @default(uuid())
+  name              String
+  originProvinceId  String
+  originProvince    Province @relation("PricingFrom", fields: [originProvinceId], references: [id])
+  destProvinceId    String
+  destProvince      Province @relation("PricingTo", fields: [destProvinceId], references: [id])
+  
+  basePrice         Float    @default(0.0) // السعر الأساسي للوزن الأول (مثلاً أول 1 كجم)
+  weightRate        Float    @default(0.0) // سعر الكيلو الإضافي
+  volumeRate        Float    @default(0.0) // سعر الحجم الإضافي إن وجد
+  serviceMultiplier Float    @default(1.0) // معامل الخدمة (مثلاً السريع = 1.5)
+  minPrice          Float    @default(0.0) // الحد الأدنى للتسعيرة
+  isActive          Boolean  @default(true)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([originProvinceId, destProvinceId])
+}
+
+// حركة الأموال والتحصيلات
+model Payment {
+  id           String   @id @default(uuid())
+  shipmentId   String
+  shipment     Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  amount       Float
+  type         String   // SHIPPING_FEE, COLLECTION_COD, INSURANCE_FEE, EXTRA_SERVICE
+  method       String   // CASH, BANK_TRANSFER, MOBILE_WALLET, CREDIT
+  status       String   @default("COMPLETED") // PENDING, COMPLETED, FAILED
+  
+  collectedById String
+  collectedBy   User     @relation("CollectedBy", fields: [collectedById], references: [id])
+  settled      Boolean  @default(false) // هل تم تسوية المبلغ محاسبياً
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// إثباتات التسليم
+model DeliveryProof {
+  id           String   @id @default(uuid())
+  shipmentId   String
+  shipment     Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  otpUsed      Boolean  @default(false)
+  signatureUrl String?  // صورة التوقيع
+  photoUrl     String?  // صورة الطرد عند باب المستلم
+  latitude     Float?
+  longitude    Float?
+  
+  createdAt    DateTime @default(now())
+}
+
+// الشكاوى والاعتراضات
+model Complaint {
+  id           String   @id @default(uuid())
+  shipmentId   String
+  shipment     Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  status       String   @default("OPEN") // OPEN, INVESTIGATING, RESOLVED, CLOSED
+  
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// سجل التدقيق والأمن
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action       String   // LOGIN, LOGOUT, CREATE_SHIPMENT, UPDATE_STATUS, EDIT_PRICE, DELETE_USER, etc.
+  entityType   String   // User, Shipment, Payment, Branch
+  entityId     String?
+  oldValues    String?  // بصيغة JSON
+  newValues    String?  // بصيغة JSON
+  ipAddress    String?
+  
+  createdAt    DateTime @default(now())
+}
+
+// سجل إشعارات الواتساب (محاكي لوجستي)
+model WhatsAppLog {
+  id             String   @id @default(uuid())
+  shipmentId     String
+  trackingNumber String
+  recipientPhone String
+  recipientName  String
+  messageType    String   // SHIPMENT_CREATED, OUT_FOR_DELIVERY, DELIVERED, OTP_SENT, RETURNED, STATUS_UPDATE
+  messageBody    String   // نص الرسالة الكاملة
+  status         String   @default("QUEUED") // QUEUED, SENT, DELIVERED, FAILED
+  direction      String   @default("OUTBOUND") // OUTBOUND, INBOUND
+  
+  createdAt      DateTime @default(now())
+
+  @@index([shipmentId])
+  @@index([recipientPhone])
+}
