@@ -66,7 +66,7 @@ export default async function InternalTrackingPage(props: {
                 عذراً، لم يتم العثور على الشحنة
               </h4>
               <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", margin: 0 }}>
-                تأكد من صحة رقم التتبع المكتوب: "{q}" وأنه مسجل في النظام.
+                تأكد من صحة رقم التتبع المكتوب: &quot;{q}&quot; وأنه مسجل في النظام.
               </p>
             </div>
           </div>

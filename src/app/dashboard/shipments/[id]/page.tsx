@@ -6,15 +6,12 @@ import ShipmentRouteMap from "@/components/ui/ShipmentRouteMap";
 import { getSession } from "@/app/actions/auth";
 import {
   ArrowLeft,
-  Calendar,
   MapPin,
   User,
   Phone,
   Shield,
   DollarSign,
   Activity,
-  Building,
-  AlertTriangle,
   Edit,
   Printer,
 } from "lucide-react";

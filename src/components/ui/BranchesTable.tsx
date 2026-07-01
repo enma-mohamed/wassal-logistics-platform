@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Building, Phone, MapPin, Users, Package, CheckCircle, ShieldAlert, Award } from "lucide-react";
+import { Building, Phone, MapPin, Users, Package, CheckCircle } from "lucide-react";
 import SearchFilter from "@/components/ui/SearchFilter";
 
 interface BranchData {

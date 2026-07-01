@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { DollarSign, User, CreditCard, Calendar, TrendingUp, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import { DollarSign, User, CreditCard, Calendar, TrendingUp, CheckCircle2, Clock } from "lucide-react";
 import ExportTableButton from "@/components/ui/ExportTableButton";
 
 export const revalidate = 0;

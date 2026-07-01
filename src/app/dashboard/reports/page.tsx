@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import { BarChart3, TrendingUp, Percent, Award, ShieldAlert, Calendar, Package, Users, Truck, DollarSign } from "lucide-react";
+import { BarChart3, TrendingUp, Percent, Award, ShieldAlert, Calendar, Package, Users, Truck } from "lucide-react";
 import ReportExportButton from "@/components/ui/ReportExportButton";
 
 export const revalidate = 0;

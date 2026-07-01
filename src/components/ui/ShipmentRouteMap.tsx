@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Truck, MapPin, CheckCircle2, Circle } from "lucide-react";
+import { Truck, MapPin, CheckCircle2 } from "lucide-react";
 
 interface ShipmentRouteMapProps {
   currentStatus: string;
@@ -23,30 +22,28 @@ export default function ShipmentRouteMap({
   originProvince,
   destProvince,
 }: ShipmentRouteMapProps) {
-  const [activeStepIndex, setActiveStepIndex] = useState(0);
-
-  useEffect(() => {
-    // تحديد الخطوة الحالية
+  const activeStepIndex = (() => {
     if (currentStatus === "PENDING_RECEIVE") {
-      setActiveStepIndex(-1);
-    } else if (currentStatus === "CANCELLED" || currentStatus === "RETURNED") {
-      setActiveStepIndex(-2);
-    } else {
-      const idx = routeSteps.findIndex((step) => {
-        if (step.status === currentStatus) return true;
-        if (currentStatus === "OUT_FOR_DELIVERY" && step.status === "ARRIVED_BRANCH") return true;
-        return false;
-      });
-      
-      if (idx !== -1) {
-        setActiveStepIndex(idx);
-      } else if (currentStatus === "DELIVERED") {
-        setActiveStepIndex(4);
-      } else {
-        setActiveStepIndex(0); // افتراضي
-      }
+      return -1;
     }
-  }, [currentStatus]);
+    if (currentStatus === "CANCELLED" || currentStatus === "RETURNED") {
+      return -2;
+    }
+
+    const idx = routeSteps.findIndex((step) => {
+      if (step.status === currentStatus) return true;
+      if (currentStatus === "OUT_FOR_DELIVERY" && step.status === "ARRIVED_BRANCH") return true;
+      return false;
+    });
+
+    if (idx !== -1) {
+      return idx;
+    }
+    if (currentStatus === "DELIVERED") {
+      return 4;
+    }
+    return 0;
+  })();
 
   // نسبة التقدم الكلي للرسم البياني
   let overallProgress = 0;
@@ -154,8 +151,6 @@ export default function ShipmentRouteMap({
             {routeSteps.map((step, idx) => {
               const isCompleted = idx < activeStepIndex;
               const isActive = idx === activeStepIndex;
-              const isFuture = idx > activeStepIndex;
-
               return (
                 <div
                   key={step.status}

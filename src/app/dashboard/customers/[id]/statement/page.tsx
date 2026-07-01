@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { getSession } from "@/app/actions/auth";
 import StatementPrintActions from "@/components/ui/StatementPrintActions";
-import { DollarSign, Package, CheckCircle2 } from "lucide-react";
 
 export const revalidate = 0;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { TrendingUp, MapPin, DollarSign, Scale, Percent, CheckCircle, ShieldAlert, AlertTriangle } from "lucide-react";
+import { TrendingUp, MapPin, DollarSign, Scale, Percent, CheckCircle, AlertTriangle } from "lucide-react";
 import SearchFilter from "@/components/ui/SearchFilter";
 
 interface Province {

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useState, useEffect, useTransition, useCallback } from "react";
 import { logoutAction } from "@/app/actions/auth";
 import { getRecentNotificationsAction, AuditNotification } from "@/app/actions/notifications";
 import { changePasswordAction } from "@/app/actions/users";
-import { LogOut, User, Building, Shield, Bell, Package, CheckCircle2, Edit, Key, RefreshCw, Lock } from "lucide-react";
+import { LogOut, Building, Shield, Bell, Package, CheckCircle2, Edit, Key, RefreshCw, Lock } from "lucide-react";
 
 interface HeaderProps {
   session: {
@@ -72,22 +72,25 @@ export default function Header({ session, onMenuToggle }: HeaderProps) {
     window.location.href = "/login";
   };
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     setLoading(true);
     const res = await getRecentNotificationsAction();
     if (res.notifications) {
       setNotifications(res.notifications);
     }
     setLoading(false);
-  };
+  }, []);
 
   // جلب الإشعارات عند التحميل الأولي
   useEffect(() => {
-    fetchNotifications();
+    const initialLoad = setTimeout(fetchNotifications, 0);
     // جلب الإشعارات كل دقيقة تلقائياً
     const interval = setInterval(fetchNotifications, 60000);
-    return () => clearInterval(interval);
-  }, []);
+    return () => {
+      clearTimeout(initialLoad);
+      clearInterval(interval);
+    };
+  }, [fetchNotifications]);
 
   const toggleNotifications = () => {
     setIsNotificationsOpen(!isNotificationsOpen);

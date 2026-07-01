@@ -1,6 +1,6 @@
 import prisma from "@/lib/prisma";
 import Link from "next/link";
-import { Search, AlertTriangle, Activity, MapPin, Calendar, Clock } from "lucide-react";
+import { Search, AlertTriangle, Activity, MapPin, Calendar } from "lucide-react";
 import ShipmentRouteMap from "@/components/ui/ShipmentRouteMap";
 
 export const revalidate = 0; // إيقاف الكاش

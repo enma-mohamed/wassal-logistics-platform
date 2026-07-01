@@ -1,9 +1,10 @@
 import prisma from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import Link from "next/link";
 import ShipmentsFilterForm from "@/components/ui/ShipmentsFilterForm";
 import ExportTableButton from "@/components/ui/ExportTableButton";
 import ShipmentsTable from "@/components/ui/ShipmentsTable";
-import { Plus, ArrowUpRight, AlertTriangle } from "lucide-react";
+import { Plus, AlertTriangle } from "lucide-react";
 
 export const revalidate = 0; // إيقاف الكاش للحصول على البيانات المحدثة
 
@@ -24,7 +25,7 @@ export default async function ShipmentsPage(props: {
   });
 
   // بناء شروط التصفية والاستعلام
-  const whereClause: any = {};
+  const whereClause: Prisma.ShipmentWhereInput = {};
 
   if (status) {
     whereClause.status = status;

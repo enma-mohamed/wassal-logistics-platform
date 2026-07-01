@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { TrendingUp, BarChart2, PieChart } from "lucide-react";
+import { TrendingUp, PieChart } from "lucide-react";
 
 interface ChartDataPoint {
   name: string;

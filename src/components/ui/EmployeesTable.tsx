@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useTransition } from "react";
-import { Users, Mail, Phone, Building, Shield, Edit2, UserX, UserCheck as UserCheckIcon, MoreVertical, Trash2 } from "lucide-react";
+import { Users, Mail, Phone, Building, Shield, Edit2, UserX, UserCheck as UserCheckIcon, Trash2 } from "lucide-react";
 import SearchFilter from "@/components/ui/SearchFilter";
 import { toggleUserStatusAction, deleteUserAction, updateEmployeeAction } from "@/app/actions/users";
 

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useMemo, useTransition } from "react";
-import { Truck, Phone, Award, Building, Mail, CreditCard, Users, Zap, AlertTriangle, UserX, Trash2, UserCheck as UserCheckIcon, Edit2 } from "lucide-react";
+import { Truck, Phone, Award, Building, Mail, CreditCard, Users, Zap, UserX, Trash2, UserCheck as UserCheckIcon } from "lucide-react";
 import SearchFilter from "@/components/ui/SearchFilter";
-import { toggleUserStatusAction, deleteUserAction, updateDriverAction } from "@/app/actions/users";
+import { toggleUserStatusAction, deleteUserAction } from "@/app/actions/users";
 
 interface DriverData {
   id: string;
@@ -36,7 +36,7 @@ export default function DriversTable({ drivers }: DriversTableProps) {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [isPending, startTransition] = useTransition();
 
-  const handleToggleStatus = async (userId: string, name: string, isCurrentlyActive: boolean) => {
+  const handleToggleStatus = async (userId: string, name: string) => {
     if (confirm(`هل أنت متأكد من تغيير حالة نشاط السائق/المندوب: "${name}"؟`)) {
       startTransition(async () => {
         const res = await toggleUserStatusAction(userId);
@@ -227,7 +227,7 @@ export default function DriversTable({ drivers }: DriversTableProps) {
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
                         {/* تفعيل/تعطيل */}
                         <button
-                          onClick={() => handleToggleStatus(driver.user.id, driver.user.name, isCurrentlyActive)}
+                          onClick={() => handleToggleStatus(driver.user.id, driver.user.name)}
                           disabled={isPending}
                           className={`btn ${isCurrentlyActive ? "btn-outline" : "btn-primary"}`}
                           style={{

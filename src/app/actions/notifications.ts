@@ -3,6 +3,9 @@
 import prisma from "@/lib/prisma";
 import { getSession } from "./auth";
 
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
+
 export interface AuditNotification {
   id: string;
   action: string;
@@ -42,8 +45,8 @@ export async function getRecentNotificationsAction(): Promise<{ notifications?: 
     }));
 
     return { notifications };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching notifications:", error);
-    return { error: error?.message || "فشل جلب الإشعارات" };
+    return { error: getErrorMessage(error) || "فشل جلب الإشعارات" };
   }
 }

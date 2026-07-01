@@ -5,6 +5,9 @@ import { getSession } from "./auth";
 import { hashPassword } from "@/lib/auth-utils";
 import { revalidatePath } from "next/cache";
 
+const getErrorMessage = (error: unknown) =>
+  error instanceof Error ? error.message : String(error);
+
 // =============================
 // إنشاء موظف جديد
 // =============================
@@ -57,9 +60,9 @@ export async function createEmployeeAction(input: CreateEmployeeInput) {
 
     revalidatePath("/dashboard/employees");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("خطأ إنشاء موظف:", error);
-    return { error: "حدث خطأ أثناء إنشاء الموظف: " + (error?.message || error) };
+    return { error: "حدث خطأ أثناء إنشاء الموظف: " + getErrorMessage(error) };
   }
 }
 
@@ -126,9 +129,9 @@ export async function createAgentAction(input: CreateAgentInput) {
 
     revalidatePath("/dashboard/agents");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("خطأ إنشاء وكيل:", error);
-    return { error: "حدث خطأ أثناء إنشاء الوكيل: " + (error?.message || error) };
+    return { error: "حدث خطأ أثناء إنشاء الوكيل: " + getErrorMessage(error) };
   }
 }
 
@@ -193,9 +196,9 @@ export async function createDriverAction(input: CreateDriverInput) {
 
     revalidatePath("/dashboard/drivers");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("خطأ إنشاء سائق:", error);
-    return { error: "حدث خطأ أثناء إنشاء السائق: " + (error?.message || error) };
+    return { error: "حدث خطأ أثناء إنشاء السائق: " + getErrorMessage(error) };
   }
 }
 
@@ -254,9 +257,9 @@ export async function toggleUserStatusAction(userId: string) {
     revalidatePath("/dashboard/drivers");
 
     return { success: true, isActive: newActiveState };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("خطأ تغيير حالة المستخدم:", error);
-    return { error: "فشل تغيير حالة المستخدم: " + (error?.message || error) };
+    return { error: "فشل تغيير حالة المستخدم: " + getErrorMessage(error) };
   }
 }
 
@@ -364,9 +367,9 @@ export async function deleteUserAction(userId: string) {
     revalidatePath("/dashboard/drivers");
 
     return { success: true, message: "تم حذف الحساب والملف الشخصي بنجاح تام." };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("خطأ أثناء حذف المستخدم:", error);
-    return { error: "فشل حذف المستخدم: " + (error?.message || error) };
+    return { error: "فشل حذف المستخدم: " + getErrorMessage(error) };
   }
 }
 
@@ -410,9 +413,9 @@ export async function changePasswordAction(input: { oldPassword: string; newPass
     });
 
     return { success: true, message: "تم تغيير كلمة المرور بنجاح تام." };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("خطأ تغيير كلمة المرور:", error);
-    return { error: "حدث خطأ أثناء تغيير كلمة المرور: " + (error?.message || error) };
+    return { error: "حدث خطأ أثناء تغيير كلمة المرور: " + getErrorMessage(error) };
   }
 }
 
@@ -469,9 +472,9 @@ export async function updateEmployeeAction(input: UpdateEmployeeInput) {
 
     revalidatePath("/dashboard/employees");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("خطأ تعديل موظف:", error);
-    return { error: "فشل تعديل بيانات الموظف: " + (error?.message || error) };
+    return { error: "فشل تعديل بيانات الموظف: " + getErrorMessage(error) };
   }
 }
 
@@ -539,9 +542,9 @@ export async function updateAgentAction(input: UpdateAgentInput) {
 
     revalidatePath("/dashboard/agents");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("خطأ تعديل وكيل:", error);
-    return { error: "فشل تعديل بيانات الوكيل: " + (error?.message || error) };
+    return { error: "فشل تعديل بيانات الوكيل: " + getErrorMessage(error) };
   }
 }
 
@@ -607,8 +610,9 @@ export async function updateDriverAction(input: UpdateDriverInput) {
 
     revalidatePath("/dashboard/drivers");
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("خطأ تعديل سائق:", error);
-    return { error: "فشل تعديل بيانات السائق: " + (error?.message || error) };
+    return { error: "فشل تعديل بيانات السائق: " + getErrorMessage(error) };
   }
 }
+

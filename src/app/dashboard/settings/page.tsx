@@ -1,4 +1,3 @@
-import prisma from "@/lib/prisma";
 import SettingsForm from "@/components/forms/SettingsForm";
 import { getSystemSettings } from "@/lib/settings";
 
