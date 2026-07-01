@@ -1,5 +1,5 @@
 import prisma from "@/lib/prisma";
-import type { Prisma } from "@/generated/prisma/client";
+import type { Prisma } from "../../../generated/prisma/client";
 import Link from "next/link";
 import ShipmentsFilterForm from "@/components/ui/ShipmentsFilterForm";
 import ExportTableButton from "@/components/ui/ExportTableButton";
