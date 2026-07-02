@@ -2951,67 +2951,41 @@ html[data-theme="dark"] .app-header,
   .app-header {
     position: sticky;
     top: 0;
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) auto;
-    min-height: 60px;
-    padding: 0.65rem 0.75rem !important;
-    gap: 0.5rem;
+    display: flex !important;
+    flex-wrap: nowrap;
+    align-items: center !important;
+    min-height: 58px;
+    padding: 0.55rem 0.6rem !important;
+    gap: 0.35rem;
+    overflow: hidden;
   }
 
   .header-main-cluster {
-    gap: 0.55rem !important;
-  }
-
-  .app-header .header-welcome-text {
-    max-width: 100%;
-    font-size: 0.92rem;
-  }
-
-  .app-header-actions {
+    flex: 1 1 0;
+    min-width: 0;
     gap: 0.35rem !important;
   }
 
-  .header-icon-btn,
-  .app-header .header-password-btn,
-  .app-header .header-logout-btn,
-  .app-header .header-badge {
-    width: 36px !important;
-    min-width: 36px !important;
-    height: 36px !important;
-    min-height: 36px !important;
-  }
-
-  .app-header .header-logout-btn {
-    padding: 0 !important;
-  }
-
-  .app-header .header-logout-btn span {
-    display: none;
-  }
-
-  .app-header .dropdown-panel {
-    top: 4.25rem !important;
-    left: 0.75rem !important;
-    right: 0.75rem !important;
-    max-height: calc(100dvh - 5rem);
-  }
-}
-
-@media (max-width: 430px) {
-  .app-header {
-    padding-inline: 0.55rem !important;
-  }
-
-  .header-main-cluster {
-    gap: 0.4rem !important;
-  }
-
   .app-header .header-welcome-text {
+    max-width: 82px;
     font-size: 0.84rem;
   }
 
   .app-header-actions {
-    gap: 0.25rem !important;
+    flex: 0 0 auto;
+    width: auto !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    gap: 0.24rem !important;
+    overflow-x: visible;
+    overflow-y: hidden;
+    padding-bottom: 0;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .app-header-actions::-webkit-scrollbar {
+    display: none;
   }
 
   .header-icon-btn,
@@ -3022,6 +2996,116 @@ html[data-theme="dark"] .app-header,
     min-width: 34px !important;
     height: 34px !important;
     min-height: 34px !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+  }
+
+  .app-header .header-badge {
+    max-width: 34px;
+    justify-content: center;
+  }
+
+  .app-header .header-badge span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .app-header .header-password-btn {
+    padding: 0 !important;
+  }
+
+  .app-header .header-password-btn span {
+    display: none;
+  }
+
+  .app-header .header-logout-btn {
+    width: auto !important;
+    min-width: 62px !important;
+    padding: 0 0.62rem !important;
+    color: var(--danger) !important;
+    background: rgba(255, 255, 255, 0.72) !important;
+    border-color: color-mix(in srgb, var(--danger) 44%, var(--border)) !important;
+  }
+
+  .app-header .header-logout-btn span {
+    display: inline;
+    max-width: 44px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .app-header .header-badge svg,
+  .app-header .header-password-btn svg,
+  .app-header .notification-btn svg,
+  .app-header .header-logout-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .app-header .dropdown-panel {
+    top: 4rem !important;
+    left: 0.75rem !important;
+    right: 0.75rem !important;
+    max-height: calc(100dvh - 5rem);
   }
 }
 
+@media (max-width: 430px) {
+  .app-header {
+    padding: 0.48rem 0.5rem !important;
+    min-height: 54px;
+  }
+
+  .header-main-cluster {
+    gap: 0.4rem !important;
+  }
+
+  .app-header .header-welcome-text {
+    max-width: 70px;
+    font-size: 0.78rem;
+  }
+
+  .app-header-actions {
+    gap: 0.18rem !important;
+  }
+
+  .header-icon-btn,
+  .app-header .header-password-btn,
+  .app-header .header-badge {
+    width: 32px !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+  }
+
+  .app-header .header-badge {
+    max-width: 32px;
+  }
+
+  .app-header .header-logout-btn {
+    min-width: 58px !important;
+    height: 32px !important;
+    min-height: 32px !important;
+    padding-inline: 0.52rem !important;
+    font-size: 0.74rem !important;
+  }
+
+  .app-header .header-badge svg,
+  .app-header .header-password-btn svg,
+  .app-header .notification-btn svg,
+  .app-header .header-logout-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .app-header .dropdown-panel {
+    top: 4rem !important;
+    left: 0.55rem !important;
+    right: 0.55rem !important;
+  }
+}

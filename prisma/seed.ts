@@ -4,8 +4,107 @@ import { createPrismaClient } from "../src/lib/prisma";
 
 const prisma = createPrismaClient();
 
-
 const SALT = process.env.HASH_SALT || "wassal_secret_salt_key_123";
+
+function envBool(name: string, defaultValue = false) {
+  const v = process.env[name];
+  if (v === undefined) return defaultValue;
+  return v === "1" || v.toLowerCase() === "true" || v.toLowerCase() === "yes";
+}
+
+function sanitizeText(value: unknown) {
+  if (value === null || value === undefined) return null;
+  const cleaned = String(value).replaceAll("?", "").trim();
+  // لو صار النص فارغ بعد التنظيف ارجع null لتجنب إدخال قيم ملخبطه
+  return cleaned.length ? cleaned : null;
+}
+
+
+async function resetSeedData() {
+  // يحذف فقط بيانات الجداول التي يتم تعبئتها بالـ seed لتجنب كسر بيانات أخرى.
+  // ملاحظة: في Postgres: يلزم ترتيب الحذف من الأقرب للأبناء.
+  console.log("🧹 RESET_DB=true => جاري حذف بيانات الـ seed...");
+
+  await prisma.$transaction([
+    // Shipment children
+    prisma.shipmentEvent.deleteMany(),
+    prisma.shipmentItem.deleteMany(),
+    prisma.deliveryProof.deleteMany(),
+    prisma.complaint.deleteMany(),
+    prisma.payment.deleteMany(),
+
+    // Shipment related
+    prisma.shipment.deleteMany(),
+    prisma.whatsAppLog.deleteMany(),
+
+    // Profiles
+    prisma.agent.deleteMany(),
+    prisma.driver.deleteMany(),
+
+    // Auth users created by seed
+    prisma.user.deleteMany({
+      where: {
+        email: {
+          in: [
+            "admin@wassal.ye",
+            "manager@wassal.ye",
+            "reception@wassal.ye",
+            "agent@wassal.ye",
+            "driver@wassal.ye",
+          ],
+        },
+      },
+    }),
+
+    // Customers
+    prisma.customer.deleteMany({
+      where: {
+        phone: { in: ["777888001", "777888002"] },
+      },
+    }),
+
+    // Pricing rules
+    prisma.pricingRule.deleteMany(),
+
+    // Branches (created by seed)
+    prisma.branch.deleteMany({
+      where: {
+        name: {
+          in: [
+            "الفرع الرئيسي - صنعاء",
+            "فرع عدن",
+            "فرع تعز",
+          ],
+        },
+      },
+    }),
+
+    // Provinces/Cities will be recreated because branch IDs depend on them,
+    // but we only recreate Yemen seed set (yemenData provinces + their cities).
+    // To keep it safe, delete by known province names.
+    // (ممكن تحتاج تعديلها إذا أردت reset شامل أكثر)
+    prisma.city.deleteMany({
+      where: {
+        province: {
+          name: {
+            in: yemenData.map((x) => x.province),
+          },
+        },
+      },
+    }),
+
+    prisma.province.deleteMany({
+      where: {
+        name: {
+          in: yemenData.map((x) => x.province),
+        },
+      },
+    }),
+  ]);
+
+  console.log("✅ تم حذف بيانات الـ seed");
+}
+
 
 function hashPassword(password: string): string {
   return crypto.createHmac("sha256", SALT).update(password).digest("hex");
@@ -40,19 +139,26 @@ const yemenData: { province: string; cities: string[] }[] = [
 async function main() {
   console.log("🌱 بدء إدخال البيانات الأولية...");
 
+  if (envBool("RESET_DB", false)) {
+    await resetSeedData();
+  }
+
+
   // إنشاء المحافظات والمدن
   for (const item of yemenData) {
     const province = await prisma.province.upsert({
       where: { name: item.province },
       update: {},
-      create: { name: item.province },
+      create: { name: sanitizeText(item.province) ?? item.province },
     });
+
 
     for (const cityName of item.cities) {
       await prisma.city.upsert({
         where: { name_provinceId: { name: cityName, provinceId: province.id } },
         update: {},
-        create: { name: cityName, provinceId: province.id },
+        create: { name: sanitizeText(cityName) ?? cityName, provinceId: province.id },
+
       });
     }
     console.log(`  ✅ ${item.province} (${item.cities.length} مدينة)`);
@@ -87,12 +193,13 @@ async function main() {
       where: { name: branchName },
       update: {},
       create: {
-        name: branchName,
         provinceId: province.id,
+        name: sanitizeText(branchName) ?? branchName,
         phone,
         address,
       },
     });
+
 
     if (province.name === "أمانة العاصمة") {
       mainBranch = branch;
