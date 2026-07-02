@@ -1,11 +1,8 @@
-import { PrismaClient, type Branch, type Province } from "../src/generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { type Branch, type Province } from "../src/generated/prisma/client";
 import crypto from "crypto";
-import path from "path";
+import { createPrismaClient } from "../src/lib/prisma";
 
-const dbPath = path.join(process.cwd(), "prisma", "dev.db");
-const adapter = new PrismaBetterSqlite3({ url: `file:${dbPath}` });
-const prisma = new PrismaClient({ adapter });
+const prisma = createPrismaClient();
 
 
 const SALT = process.env.HASH_SALT || "wassal_secret_salt_key_123";

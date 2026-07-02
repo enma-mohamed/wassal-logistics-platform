@@ -64,6 +64,49 @@ yarn
 pnpm install
 ```
 
+## الخطوة 1: تثبيت الحزم المطلوبة لـ Supabase
+
+```bash
+npm install @supabase/supabase-js @supabase/ssr
+```
+
+## الخطوة 2: إضافة ملفات Supabase والبيئة
+
+أنشئ أو عدّل ملف [.env.local](.env.local) وأضف:
+
+```env
+DATABASE_URL="postgresql://postgres:YOUR_PASSWORD@db.YOUR_PROJECT.supabase.co:5432/postgres?sslmode=require"
+NEXT_PUBLIC_SUPABASE_URL="https://YOUR_PROJECT.supabase.co"
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="YOUR_PUBLISHABLE_KEY"
+```
+
+تمت إضافة ملفات المساعدات في:
+- [src/utils/supabase/client.ts](src/utils/supabase/client.ts)
+- [src/utils/supabase/server.ts](src/utils/supabase/server.ts)
+- [src/utils/supabase/middleware.ts](src/utils/supabase/middleware.ts)
+
+وتم ربط middleware الحالي مع Supabase بحيث يتم Refresh للـ session عند الحاجة.
+
+## الخطوة 3: إعداد Supabase / Prisma على Vercel
+
+1. افتح مشروعك على Vercel وأضف المتغيرات التالية في Environment Variables:
+   - DATABASE_URL
+   - NEXT_PUBLIC_SUPABASE_URL
+   - NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+2. شغّل Prisma على قاعدة Supabase:
+
+```bash
+npx prisma generate
+npx prisma db push
+node prisma/seed.ts
+```
+
+3. إذا أردت، يمكنك تثبيت Agent Skills اختياريًا من Supabase:
+
+```bash
+npx skills add supabase/agent-skills
+```
+
 ## إعداد قاعدة البيانات
 
 هذا المشروع يستخدم Prisma مع SQLite. بعد التثبيت، يمكنك تهيئة قاعدة البيانات والبيانات الأولية باستخدام:

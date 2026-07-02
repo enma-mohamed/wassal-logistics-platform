@@ -1,9 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { createClient } from "@/utils/supabase/middleware";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const { response, supabase } = createClient(request);
   const session = request.cookies.get("wassal_session");
   const { pathname } = request.nextUrl;
+
+  try {
+    await supabase.auth.getUser();
+  } catch {
+    // Ignore Supabase auth refresh errors and fall back to the app's custom cookie session.
+  }
 
   // السماح بملفات النظام والصور الثابتة والـ APIs والموقع العام للتتبع دون مصادقة
   if (
@@ -12,7 +20,7 @@ export function middleware(request: NextRequest) {
     pathname.includes(".") ||
     pathname === "/track"
   ) {
-    return NextResponse.next();
+    return response;
   }
 
   // إذا كان المستخدم مسجل دخول ويحاول الوصول لصفحة تسجيل الدخول أو الصفحة الرئيسية العامة
@@ -27,13 +35,13 @@ export function middleware(request: NextRequest) {
 
   // إذا كان المستخدم غير مسجل دخول ويحاول الوصول لصفحة محمية
   const isAuthPage = pathname === "/login";
-  
+
   if (!session && !isAuthPage) {
     // توجيه لصفحة تسجيل الدخول
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 // تحديد المسارات التي سيتم تطبيق الـ middleware عليها

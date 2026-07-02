@@ -1,54 +1,68 @@
 import { PrismaClient } from "../generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import path from "path";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool, type PoolConfig } from "pg";
 
-const dbPath = path.join(process.cwd(), "prisma", "dev.db");
+const defaultPoolMax = process.env.NODE_ENV === "production" ? 5 : 10;
 
-function createPrisma() {
+function createPostgresPool(connectionString: string) {
+  const url = new URL(connectionString);
+  const sslMode = url.searchParams.get("sslmode");
+  const sslAccept = url.searchParams.get("sslaccept");
+  const isSupabaseHost =
+    url.hostname.endsWith(".supabase.co") || url.hostname.endsWith(".pooler.supabase.com");
+  const configuredPoolMax = Number(process.env.DATABASE_POOL_MAX);
+  const poolMax =
+    Number.isFinite(configuredPoolMax) && configuredPoolMax > 0 ? configuredPoolMax : defaultPoolMax;
+  const config: PoolConfig = {
+    connectionString,
+    max: poolMax,
+  };
+
+  if (sslMode !== "disable" && (sslMode || isSupabaseHost)) {
+    config.ssl = sslAccept === "strict" ? true : { rejectUnauthorized: false };
+  }
+
+  return new Pool(config);
+}
+
+export function createPrismaClient() {
   try {
-    // In production prefer a remote DB via DATABASE_URL (e.g. Postgres).
-    // If DATABASE_URL is provided and not a file: URL, instantiate default PrismaClient.
-    if (process.env.NODE_ENV === "production") {
-      const dbUrl = process.env.DATABASE_URL;
-      if (dbUrl && !dbUrl.startsWith("file:")) {
-        return new PrismaClient();
-      }
+    const dbUrl = process.env.DATABASE_URL?.trim();
+    if (!dbUrl) {
+      throw new Error("DATABASE_URL is required.");
     }
 
-    // Default local development: use better-sqlite3 adapter with local file
-    const adapter = new PrismaBetterSqlite3({ url: `file:${dbPath}` });
+    if (!/^(postgres|postgresql):/i.test(dbUrl)) {
+      throw new Error("DATABASE_URL must be a PostgreSQL connection string.");
+    }
+
+    const pool = createPostgresPool(dbUrl);
+    const adapter = new PrismaPg(pool);
     return new PrismaClient({ adapter });
   } catch (err) {
     console.error("Prisma initialization error:", err);
     throw new Error(
-      "Prisma failed to initialize. On serverless hosts (e.g. Vercel) SQLite file access may not be available. " +
-        "Use a hosted database and set DATABASE_URL, or deploy to an environment that supports SQLite. Original error: " +
+      "Prisma failed to initialize. If you are using Supabase/Postgres, ensure DATABASE_URL is set correctly. Original error: " +
         (err instanceof Error ? err.message : String(err))
     );
   }
 }
 
-let prismaInstance: undefined | ReturnType<typeof createPrisma>;
+let prismaInstance: undefined | ReturnType<typeof createPrismaClient>;
 
 const handler: ProxyHandler<object> = {
   get(_, prop) {
     if (!prismaInstance) {
-      prismaInstance = createPrisma();
+      prismaInstance = createPrismaClient();
       if (process.env.NODE_ENV !== "production") {
-        // expose for REPL / dev to avoid creating multiple clients
         (global as any).prismaGlobal = prismaInstance;
       }
     }
     // @ts-ignore - forward property access to the real client
     return (prismaInstance as any)[prop];
   },
-  apply(_, thisArg, args) {
-    if (!prismaInstance) prismaInstance = createPrisma();
-    // @ts-ignore
-    return (prismaInstance as any).apply(thisArg, args);
-  },
 };
 
-const prismaProxy = new Proxy({}, handler) as unknown as ReturnType<typeof createPrisma>;
+const prismaProxy = new Proxy({}, handler) as unknown as ReturnType<typeof createPrismaClient>;
 
 export default prismaProxy;
