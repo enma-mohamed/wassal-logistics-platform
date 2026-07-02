@@ -1,5 +1,5 @@
 import type { Branch, Province } from "../src/generated/prisma/client";
-import crypto from "crypto";
+import * as crypto from "crypto";
 import { createPrismaClient } from "../src/lib/prisma";
 
 const prisma = createPrismaClient();

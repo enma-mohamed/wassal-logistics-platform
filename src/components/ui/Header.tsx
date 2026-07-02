@@ -4,7 +4,7 @@ import { useState, useEffect, useTransition, useCallback } from "react";
 import { logoutAction } from "@/app/actions/auth";
 import { getRecentNotificationsAction, AuditNotification } from "@/app/actions/notifications";
 import { changePasswordAction } from "@/app/actions/users";
-import { LogOut, Building, Shield, Bell, Package, CheckCircle2, Edit, Key, RefreshCw, Lock } from "lucide-react";
+import { LogOut, Building, Shield, Bell, Package, CheckCircle2, Edit, Key, RefreshCw, Lock, Menu } from "lucide-react";
 
 interface HeaderProps {
   session: {
@@ -125,12 +125,12 @@ export default function Header({ session, onMenuToggle }: HeaderProps) {
   };
 
   return (
-    <header className="dashboard-header" style={{ position: "relative" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+    <header className="dashboard-header app-header" style={{ position: "relative" }}>
+      <div className="header-main-cluster" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
         {onMenuToggle && (
           <button
             onClick={onMenuToggle}
-            className="sidebar-toggle-btn btn btn-outline"
+            className="sidebar-toggle-btn btn btn-outline header-icon-btn menu-toggle-btn"
             style={{
               padding: "0.5rem",
               borderRadius: "var(--radius-md)",
@@ -144,20 +144,7 @@ export default function Header({ session, onMenuToggle }: HeaderProps) {
             }}
             title="القائمة"
           >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="4" x2="20" y1="12" y2="12" />
-              <line x1="4" x2="20" y1="6" y2="6" />
-              <line x1="4" x2="20" y1="18" y2="18" />
-            </svg>
+            <Menu size={20} />
           </button>
         )}
         <div className="header-info">
@@ -166,7 +153,7 @@ export default function Header({ session, onMenuToggle }: HeaderProps) {
         </div>
       </div>
 
-      <div className="header-actions" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+      <div className="header-actions app-header-actions" style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
         {session.branchName && (
           <div className="header-badge header-branch-badge">
             <Building size={16} />
@@ -180,10 +167,10 @@ export default function Header({ session, onMenuToggle }: HeaderProps) {
         </div>
 
         {/* جرس الإشعارات الحية */}
-        <div style={{ position: "relative" }}>
+        <div className="notification-menu-wrapper" style={{ position: "relative" }}>
           <button
             onClick={toggleNotifications}
-            className="btn btn-outline"
+            className="btn btn-outline header-icon-btn notification-btn"
             style={{
               padding: "0.5rem",
               borderRadius: "50%",
@@ -275,7 +262,7 @@ export default function Header({ session, onMenuToggle }: HeaderProps) {
             setPasswordError("");
             setPasswordSuccess("");
           }}
-          className="btn btn-outline"
+          className="btn btn-outline header-password-btn"
           title="تغيير كلمة المرور"
           style={{
             padding: "0.5rem 1rem",
