@@ -1,4 +1,4 @@
-import { PrismaClient } from "../src/generated/prisma";
+import type { Branch, Province } from "../src/generated/prisma/client";
 import crypto from "crypto";
 import { createPrismaClient } from "../src/lib/prisma";
 
