@@ -23,9 +23,13 @@ interface ShipmentNotificationData {
   status?: string;
 }
 
-// رابط التتبع العام
+// رابط التتبع العام — يمكن تخصيصه عبر NEXT_PUBLIC_TRACK_URL
+const TRACK_BASE =
+  process.env.NEXT_PUBLIC_TRACK_URL || process.env.NEXT_PUBLIC_APP_URL ||
+  "https://wassal-logistics-platform-sand.vercel.app";
+
 const getTrackUrl = (trackingNumber: string) =>
-  `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/track?num=${trackingNumber}`;
+  `${TRACK_BASE}/track?num=${encodeURIComponent(trackingNumber)}`;
 
 /**
  * توليد رسالة الواتساب حسب نوع الحدث

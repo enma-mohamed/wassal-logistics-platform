@@ -1996,5 +1996,282 @@ button,
   margin-top: 0.25rem;
 }
 
+/* تحسينات التجاوب لجميع الشاشات */
+html {
+  scroll-padding-top: 5rem;
+}
+
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+.dashboard-header,
+.dashboard-main-content,
+.dashboard-sidebar,
+.public-track-main,
+.track-container,
+.filter-form,
+.shipment-form-container,
+.shipments-page-container,
+.shipment-details-container,
+.details-grid-columns,
+.form-section-card,
+.items-card,
+.status-updater-card,
+.finance-details-card,
+.timeline-card,
+.public-track-input,
+.track-submit-btn {
+  width: 100%;
+}
+
+.dashboard-header {
+  padding: clamp(0.75rem, 2vw, 1.5rem) clamp(1rem, 2vw, 2rem);
+  min-height: auto;
+}
+
+.header-actions {
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.header-actions > * {
+  min-width: 0;
+}
+
+.page-header-section,
+.section-header,
+.details-header-section,
+.items-section-header,
+.finance-header,
+.review-item,
+.summary-header,
+.timeline-event-header,
+.form-footer-actions {
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.page-title,
+.welcome-title,
+.track-title {
+  line-height: 1.1;
+}
+
+.section-title,
+.form-label,
+.stat-label,
+.finance-label,
+.summary-number-label,
+.spec-label,
+.timeline-event-date {
+  white-space: normal;
+}
+
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table,
+.items-table {
+  min-width: 640px;
+}
+
+.data-table th,
+.data-table td,
+.items-table th,
+.items-table td {
+  white-space: normal;
+}
+
+.filter-grid,
+.form-grid-3,
+.form-row,
+.item-row,
+.stats-grid,
+.finance-stats-grid,
+.summary-grid,
+.specs-grid,
+.details-grid-columns {
+  gap: 1rem;
+}
+
+.form-grid-3 {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.form-row,
+.item-row,
+.specs-grid,
+.details-grid-columns {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.header-badge,
+.header-logout-btn,
+.btn,
+.search-input-wrapper,
+.search-input-field,
+.track-form,
+.track-submit-btn,
+.public-track-input {
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-sidebar {
+    width: min(280px, 85vw);
+  }
+  .dashboard-header {
+    padding: 0.85rem 1rem;
+  }
+  .dashboard-main-content {
+    padding: 1.5rem;
+  }
+  .dashboard-home,
+  .shipments-page-container,
+  .shipment-details-container,
+  .track-container {
+    gap: 1.25rem;
+  }
+  .page-header-section,
+  .section-header,
+  .details-header-section {
+    justify-content: space-between;
+  }
+  .filter-grid,
+  .form-grid-3 {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .header-actions {
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  .header-info {
+    width: 100%;
+  }
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+  }
+  .header-actions > * {
+    width: 100%;
+  }
+  .sidebar-close-btn,
+  .sidebar-toggle-btn {
+    display: inline-flex !important;
+  }
+  .dashboard-main-content {
+    padding: 1.25rem;
+  }
+  .page-header-section,
+  .section-header,
+  .details-header-section,
+  .items-section-header,
+  .summary-header,
+  .timeline-event-header {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: right;
+  }
+  .dashboard-header .header-info,
+  .dashboard-header .header-actions {
+    justify-content: space-between;
+  }
+  .search-input-wrapper {
+    width: 100%;
+  }
+  .track-form {
+    flex-direction: column;
+  }
+  .track-submit-btn {
+    width: 100%;
+  }
+  .public-track-input {
+    width: 100%;
+  }
+  .dashboard-sidebar {
+    position: fixed;
+    max-width: 280px;
+    width: min(280px, 85vw);
+    right: 0;
+    top: 0;
+    transform: translateX(100%);
+    transition: transform var(--transition-normal);
+    z-index: 110;
+  }
+  .dashboard-sidebar.open {
+    transform: translateX(0);
+    box-shadow: -6px 0 30px rgba(0,0,0,0.28);
+  }
+  .dashboard-content-wrapper {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard-header {
+    padding: 1rem;
+  }
+  .dashboard-main-content {
+    padding: 1rem;
+  }
+  .header-badge,
+  .header-logout-btn,
+  .btn {
+    width: 100%;
+  }
+  .sidebar-logo-text {
+    font-size: 1.1rem;
+  }
+  .welcome-title {
+    font-size: 1.5rem;
+  }
+  .track-title {
+    font-size: 1.75rem;
+  }
+  .public-track-main {
+    padding: 2rem 1rem;
+  }
+  .track-search-card {
+    padding: 2rem 1rem;
+  }
+  .track-form,
+  .filter-form,
+  .shipment-form-container,
+  .details-grid-columns,
+  .specs-grid,
+  .summary-grid {
+    gap: 0.75rem;
+  }
+  .data-table th,
+  .data-table td,
+  .items-table th,
+  .items-table td {
+    padding: 0.75rem 0.85rem;
+  }
+}
+
 
 

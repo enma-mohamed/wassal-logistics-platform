@@ -65,8 +65,12 @@ export default async function PrintWaybillPage(props: { params: Params }) {
 
   const metadata = safeParseMetadata(shipment.metadataJson) as { isFragile?: boolean; labelStyle?: string };
   const isFragile = Boolean(metadata.isFragile);
+  const TRACK_BASE =
+    process.env.NEXT_PUBLIC_TRACK_URL || process.env.NEXT_PUBLIC_APP_URL ||
+    "https://wassal-logistics-platform-sand.vercel.app";
+
   const qrDataUrl = await QRCode.toDataURL(
-    `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/track?num=${shipment.trackingNumber}`,
+    `${TRACK_BASE}/track?num=${encodeURIComponent(shipment.trackingNumber)}`,
     { margin: 1, width: 240 }
   );
 
